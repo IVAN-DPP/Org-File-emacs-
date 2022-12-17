@@ -1,0 +1,458 @@
+#+AUTHOR:  Ivan Dario Piernagorda Peña
+#+TITLE: My personal emacs customize
+
+* Global Keys
+** Windows-Buffers keys
+#+BEGIN_SRC emacs-lisp
+
+  (global-set-key (kbd "C-x :") 'rename-buffer)  ;; Rename buffer
+  (global-set-key (kbd "C-z") 'undo)             ;; Control z normalito
+  (global-set-key (kbd "C-c C-j") 'term-line-mode) ;; Line mode
+  (global-set-key (kbd "C-c TAB") 'window-swap-states) ;; Swap the windows
+
+  ;; Move into multiple windows
+  (global-set-key (kbd "C-c <up>") 'windmove-up)
+  (global-set-key (kbd "C-c <down>") 'windmove-down)
+  (global-set-key (kbd "C-c <left>") 'windmove-left)
+  (global-set-key (kbd "C-c <right>") 'windmove-right)
+
+  ;; Mulptiple windows
+  (global-set-key (kbd "S-M-<left>") 'shrink-window-horizontally)
+  (global-set-key (kbd "S-M-<right>") 'enlarge-window-horizontally)
+  (global-set-key (kbd "S-M-<down>") 'shrink-window)
+  (global-set-key (kbd "S-M-<up>") 'enlarge-window)
+
+  ;; When we kill a program with C-x M-k it close the window too
+  (defun delete-window-kill ()
+    (interactive)
+    (call-interactively 'kill-buffer)
+    (call-interactively 'delete-window))
+  (global-set-key (kbd "C-x M-k") 'delete-window-kill)
+
+  (global-set-key (kbd "C-x -") 'maximize-window) ;; Maximize all the window
+
+
+#+END_SRC
+** Helm Global Keys
+*** Helm-Default
+#+BEGIN_SRC emacs-lisp
+
+(global-set-key (kbd "C-x b") 'helm-buffers-list)
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-s") 'helm-occur)
+(global-set-key (kbd "M-y") 'helm-show-kill.ring)
+(global-set-key (kbd "C-c h g") 'helm-google-suggest)
+
+#+END_SRC 
+
+*** Helm-Swoop
+    #+begin_src emacs-lisp
+      (require 'helm-swoop)
+
+      ;; Change the keybinds to whatever you like :)
+      (global-set-key (kbd "M-i") 'helm-swoop)
+      (global-set-key (kbd "M-I") 'helm-swoop-back-to-last-point)
+      (global-set-key (kbd "C-c M-i") 'helm-multi-swoop)
+      (global-set-key (kbd "C-x M-i") 'helm-multi-swoop-all)
+
+      ;; When doing isearch, hand the word over to helm-swoop
+      (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+      ;; From helm-swoop to helm-multi-swoop-all
+      (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+    #+end_src
+** Global linum-mode
+#+BEGIN_SRC emacs-lisp 
+(add-hook 'prog-mode-hook 'linum-mode)
+#+END_SRC
+** Compile
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-M-x") 'compile)
+  (global-set-key (kbd "M-°") 'eshell-command)
+#+end_src
+* Customize GUI
+** Fonts
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'default-frame-alist
+	       '(font . "Monospace-10.5:bold"))
+#+END_SRC
+** Doom-modeline
+#+BEGIN_SRC emacs-lisp
+(require 'doom-modeline)
+(doom-modeline-mode 1)
+(add-hook 'after-init-hook #'doom-modeline-mode)
+(setq doom-modeline-height 2)
+(setq doom-modeline-bar-width 10)
+
+(require 'all-the-icons)
+
+#+END_SRC
+** Trasparency
+   #+begin_src emacs-lisp
+     (set-frame-parameter (selected-frame) 'alpha '(92 . 90))
+     (add-to-list 'default-frame-alist '(alpha 92 . 90))
+   #+end_src
+* Multi Term
+#+BEGIN_SRC emacs-lisp
+
+;; Disable menu
+(setq inhibit-startup-message t) 
+;; Multiterm
+(load "~/.emacs.d/elpa/multi-term-20200112.533/multi-term")
+(require 'multi-term)
+(setq multi-term-program "/bin/zsh")
+(add-hook 'emacs-startup-hook 'multi-term)
+;; Begin with Term
+;;(term "/usr/bin/zsh")
+
+;; Open new terms with this commands
+(defun my-multi-term-keys-below () 
+(interactive)
+(call-interactively 'split-window-below)
+(call-interactively 'other-window)
+(call-interactively 'multi-term))
+
+(defun my-multi-term-keys-right ()
+(interactive)
+(call-interactively 'split-window-right)
+(call-interactively 'other-window)
+(call-interactively 'multi-term))
+
+(global-set-key (kbd "C-x \"") 'my-multi-term-keys-below)
+(global-set-key (kbd "C-x \#") 'my-multi-term-keys-right)
+
+(defcustom term-unbind-key-list
+  '("C-z" "C-x" "C-c" "C-h" "C-y" "<ESC>")
+  "The key list that will need to be unbind."
+  :type 'list
+  :group 'multi-term)
+
+(defcustom term-bind-key-alist
+  '(
+    ("C-c C-c" . term-interrupt-subjob)
+    ("C-p" . previous-line)
+    ("C-n" . next-line)
+    ("C-s" . isearch-forward)
+    ("C-r" . isearch-backward)
+    ("C-m" . term-send-raw)
+    ("M-f" . term-send-forward-word)
+    ("M-b" . term-send-backward-word)
+    ("M-o" . term-send-backspace)
+    ("M-p" . term-send-up)
+    ("M-n" . term-send-down)
+    ("M-M" . term-send-forward-kill-word)
+    ("M-N" . term-send-backward-kill-word)
+    ("M-r" . term-send-reverse-search-history)
+    ("M-," . term-send-input)
+    ("M-." . comint-dynamic-complete))
+  "The key alist that will need to be bind.
+If you do not like default setup, modify it, with (KEY . COMMAND) format."
+  :type 'alist
+  :group 'multi-term)
+
+#+END_SRC 
+* Development
+** Expand Region
+#+BEGIN_SRC emacs-lisp
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
+#+END_SRC
+** Projectile
+#+BEGIN_SRC emacs-lisp
+(require 'projectile)
+(projectile-mode +1)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+(setq projectile-completion-system 'helm)
+
+(setq projectile-project-search-path '("/home/elchorco/Documentos/TESIS/Codigo/IVAN_ROOTBEER/CodigoN/Analysis/"))
+
+#+END_SRC
+** C++ Packages
+*** Package Initialize
+ #+BEGIN_SRC emacs-lisp
+
+ ;; initialize package.el
+ (package-initialize)
+
+ #+END_SRC
+
+*** Company mode
+
+ #+BEGIN_SRC emacs-lisp 
+
+ (require 'company)
+ (add-hook 'after-init-hook 'global-company-mode)
+
+ (setq company-minimum-prefix-length 1)
+ (setq company-idle-delay 0.1)
+
+ ;; Modes without Company
+ (setq company-global-modes '(not mhtml-mode))
+
+ #+END_SRC
+
+*** Yasnippet
+
+ #+BEGIN_SRC emacs-lisp
+ (add-to-list 'load-path "~/emacs.d/elpa/yasnippet-20191222.2206")
+
+ (require 'yasnippet)
+ (yas-global-mode 1)
+ (setq yasnippet-minimum-prefix-length 1)
+ (setq yasnippet-idle-delay 0.1)
+
+ #+END_SRC
+
+*** Company c Headers
+ #+BEGIN_SRC emacs-lisp
+
+ (require 'company-c-headers)
+ (add-to-list 'company-backends 'company-c-headers)
+ (add-to-list 'company-c-headers-path-system "/usr/include/root/")
+ (add-to-list 'company-c-headers-path-system "/usr/include/c++/10/")
+
+ #+END_SRC
+
+*** Flycheck
+
+ #+BEGIN_SRC emacs-lisp
+
+ (require 'flycheck)
+ (global-flycheck-mode)
+ (add-hook 'c++-mode-hook
+           (lambda () (setq flycheck-clang-include-path
+                            (list (expand-file-name "/usr/include/root/")))))
+
+ (add-hook 'c++-mode-hook
+           (lambda () (setq flycheck-clang-include-path
+                            (list (expand-file-name "/usr/include/c++/10/")))))
+
+ (add-hook 'c++-mode-hook
+           (lambda () (setq flycheck-clang-include-path
+                            (list (expand-file-name "/usr/include/")))))
+
+(with-eval-after-load "flycheck"
+    (setq flycheck-clang-warnings `(,@flycheck-clang-warnings
+                                    "no-pragma-once-outside-header")))
+ #+END_SRC
+
+*** Helm Gtags
+
+ #+BEGIN_SRC emacs-lisp
+
+     (add-hook 'c-mode-hook 'helm-gtags-mode)
+     (add-hook 'c++-mode-hook 'helm-gtags-mode)
+     (add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+     ;; Set key bindings
+     (eval-after-load "helm-gtags"
+       '(progn
+          (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)
+          (define-key helm-gtags-mode-map (kbd "M-r") 'helm-gtags-find-rtag)
+          (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
+          (define-key helm-gtags-mode-map (kbd "M-g M-p") 'helm-gtags-parse-file)
+          (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+          (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
+          (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)))
+
+ #+END_SRC
+
+*** Iedit mode
+ #+BEGIN_SRC emacs-lisp
+
+ ;; Fix iedit bux in Linux
+ (define-key global-map (kbd "C-c ;") 'iedit-mode)
+
+ #+END_SRC
+ 
+*** Highlights-indent-lines
+ #+BEGIN_SRC emacs-lisp
+ (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+ (setq highlight-indent-guides-method 'bitmap)
+ (setq highlight-indent-guides-responsive 0.01)
+ #+END_SRC
+** HTML Packages
+*** Emmet Mode (autocomplete)
+
+ #+BEGIN_SRC emacs-lisp
+ (add-to-list 'load-path "~/emacs.d/emmet-mode")
+ (require 'emmet-mode)
+
+ (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+ (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
+ #+END_SRC
+
+*** Simple-httpd (Real time)
+
+ #+BEGIN_SRC emacs-lisp
+ (add-to-list 'load-path "~/.emacs.d/elpa/simple-httpd-1.5.1")
+ (require 'simple-httpd)
+ #+END_SRC
+
+* PDF Tools
+
+#+BEGIN_SRC emacs-lisp
+
+
+;;Pdf tools install
+(pdf-tools-install)
+
+;;Pdf vies-restore
+(add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode)
+
+#+END_SRC emacs-lisp
+* Org Config
+** OpenFiles with evince
+#+begin_src emacs-lisp
+  (setq org-file-apps
+	'((auto-mode . emacs)
+	  ("\\.x?html?\\'" . "brave %s")
+	  ("\\.pdf\\'" . "evince \"%s\"")
+	  ("\\.djvu\\'" . "evince \"%s\"")
+	  ("\\.pdf::\\([0-9]+\\)\\'" . "evince \"%s\" -p %1")
+	  ("\\.pdf.xoj" . "xournal %s")))
+#+end_src
+** Org babel Languages
+*** C
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+'org-babel-load-languages '((C . t)))
+#+END_SRC
+*** Python
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages '((python . t)))
+#+END_SRC
+*** Gnuplot
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages '((gnuplot . t)))
+#+END_SRC
+*** JavaScript
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages '((js . t)))
+#+END_SRC
+
+*** shell
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages '((shell . t)))
+#+END_SRC
+
+*** Lisp
+#+BEGIN_SRC emacs-lisp
+(require 'slime)
+(setq inferior-lisp-program "/bin/sbcl")
+(org-babel-do-load-languages
+ 'org-babel-load-languages '((lisp . t)))
+#+END_SRC
+
+*** Latex
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages '((latex . t)))
+
+#+end_src
+
+** Org bullets
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+END_SRC
+** Org TODO keyworks
+#+begin_src emacs-lisp
+  (setq org-todo-keywords
+	'((sequence "TODO(t)" "INPROGRESS(i)" "FEEDBACK(f)" "VERIFY(v)" "|" "DONE(d)" "DELEGATED(D)" "CANCELLED(c)")))
+
+  (setq org-todo-keyword-faces
+	'(("TODO" :background "red" :foreground "black" :box (:line-width 2 :style released-button))
+	  ("INPROGRESS" :background "#ff5a00" :foreground "black" :box (:line-width 2 :style released-button))
+	  ("FEEDBACK" :background "#ffd000" :foreground "black" :box (:line-width 2 :style released-button))
+	  ("VERIFY" :background "#ff00dd" :foreground "black" :box (:line-width 2 :style released-button))
+	  ("DONE" :background "green" :foreground "black" :box (:line-width 2 :style released-button))
+	  ("DELEGATED" :background "blue" :foreground "black" :box (:line-width 2 :style released-button))
+	  ("CANCELLED" :background "blue" :foreground "black" :box (:line-width 2 :style released-button))))
+
+  (setq org-log-done 'time)
+#+end_src
+* Initialization commands
+** Full Screen
+
+#+BEGIN_SRC emacs-lisp
+(setq byte-compile-warnings '(not free-vars ))
+;; F11 = Full Screen
+(defun toggle-fullscreen (&optional f)
+  (interactive)
+  (let ((current-value (frame-parameter nil 'fullscreen)))
+    (set-frame-parameter nil 'fullscreen
+      (if (equal 'fullboth current-value)
+        (if (boundp 'old-fullscreen) old-fullscreen nil)
+        (progn (setq old-fullscreen current-value)
+          'fullboth)))))
+(global-set-key [f11] 'toggle-fullscreen)
+
+;; Don't show stratup message
+(setq inhibit-startup-message t)
+;; Disable tool-bar
+(tool-bar-mode -1)
+
+;; Disable Menu Bar
+(menu-bar-mode -1)
+
+;; Disable Scroll bar
+(scroll-bar-mode -1)
+
+;; Global hl mode
+(global-hl-line-mode +1)
+
+;; Delete when I select
+(delete-selection-mode +1)
+
+;; Show the paren of { or ( in a code
+(show-paren-mode +1)
+
+;; Visual line mode
+(global-visual-line-mode 1)
+
+#+END_SRC 
+* ASPELL Dictionary
+
+#+BEGIN_SRC emacs-lisp
+
+(setq-default ispell-program-name "aspell")
+
+(add-to-list 'ispell-skip-region-alist '(":\\(PROPERTIES\\|LOGBOOK\\):" . ":END:"))
+(add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_SRC" . "#\\+END_SRC"))
+
+(add-to-list 'ispell-skip-region-alist '("#\\+TITLE:" . "#\\+AUTHOR:" . "#\\+DATE:"))
+
+(add-to-list 'ispell-skip-region-alist '("INPROGRESS" . "DONE" . "TODO", "FEEDBACK" . "VERIFY" . "DELEGATED" . "CANCELLED" . "CLOSED"))
+
+#+END_SRC emacs-lisp
+* sr-spacebar
+
+#+BEGIN_SRC emacs-lisp
+
+ (require 'sr-speedbar)
+ (global-set-key (kbd "M-1") 'sr-speedbar-toggle)
+
+#+END_SRC 
+* Atomic-chrome
+
+#+begin_src emacs-lisp
+(require 'atomic-chrome)
+(atomic-chrome-start-server)
+#+end_src
+** Github
+#+begin_src emacs-lisp
+(setq atomic-chrome-url-major-mode-alist
+      '(("github\\.com" . gfm-mode)
+        ("redmine" . textile-mode)))
+#+end_src
+** Overleaf
+#+begin_src emacs-lisp
+(setq atomic-chrome-url-major-mode-alist
+      '(("overleaf\\.com" . latex-mode)))
+#+end_src
