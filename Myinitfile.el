@@ -1,16 +1,3 @@
-#+TITLE: Configuración Personal de Emacs
-#+AUTHOR: Ivan Dario Piernagorda Peña
-#+DATE: 2026-09-28
-#+DESCRIPTION: Configuración moderna y organizada de Emacs con instalación automática de paquetes
-
-* Tabla de Contenidos
-:PROPERTIES:
-:TOC: :include all :depth 2 :force (depth) :ignore (this) :local (depth) :depth 2
-:END:
-
-* Inicialización y Gestión de Paquetes
-** Configuración de repositorios y use-package
-#+begin_src emacs-lisp
 ;; Inicializar sistema de paquetes
 (require 'package)
 
@@ -36,11 +23,7 @@
   (require 'use-package))
 (setq use-package-always-ensure t)  ; Instalar automáticamente paquetes faltantes
 (setq use-package-always-defer t)   ; Cargar paquetes solo cuando se necesitan
-#+end_src
 
-* Atajos de Teclado (Keybindings)
-** Navegación entre ventanas y buffers
-#+begin_src emacs-lisp
 ;; Renombrar buffer actual
 (global-set-key (kbd "C-x :") 'rename-buffer)
 
@@ -75,20 +58,13 @@
 
 ;; Maximizar ventana actual
 (global-set-key (kbd "C-x -") 'maximize-window)
-#+end_src
 
-** Atajos de compilación y eshell
-#+begin_src emacs-lisp
 ;; Compilar proyecto
 (global-set-key (kbd "C-M-x") 'compile)
 
 ;; Ejecutar comando en eshell
 (global-set-key (kbd "M-°") 'eshell-command)
-#+end_src
 
-* Helm (Búsqueda y Navegación)
-** Configuración base de Helm
-#+begin_src emacs-lisp
 (use-package helm
   :ensure t
   :bind (("C-x b" . helm-buffers-list)      ; Lista de buffers
@@ -99,10 +75,7 @@
          ("C-c h g" . helm-google-suggest)) ; Sugerencias de Google
   :config
   (helm-mode 1))
-#+end_src
 
-** Helm-Swoop (búsqueda rápida en buffer)
-#+begin_src emacs-lisp
 (use-package helm-swoop
   :ensure t
   :bind (("M-i" . helm-swoop)                      ; Búsqueda rápida
@@ -113,18 +86,11 @@
   ;; Integración con isearch
   (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
   (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop))
-#+end_src
 
-* Interfaz Gráfica (GUI)
-** Fuente y tema
-#+begin_src emacs-lisp
 ;; Fuente por defecto
 (add-to-list 'default-frame-alist
              '(font . "Monospace-10.5:bold"))
-#+end_src
 
-** Doom-Modeline (barra de estado moderna)
-#+begin_src emacs-lisp
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-mode)
@@ -135,27 +101,18 @@
 (use-package all-the-icons
   :ensure t
   :if (display-graphic-p))
-#+end_src
 
-** Transparencia de ventana
-#+begin_src emacs-lisp
 ;; Transparencia (solo en modo gráfico)
 (when (display-graphic-p)
   (set-frame-parameter (selected-frame) 'alpha '(92 . 90))
   (add-to-list 'default-frame-alist '(alpha 92 . 90)))
-#+end_src
 
-** Números de línea
-#+begin_src emacs-lisp
 ;; Números de línea modernos (reemplaza linum-mode)
 (use-package display-line-numbers
   :hook (prog-mode . display-line-numbers-mode)
   :custom
   (display-line-numbers-type 'relative))
-#+end_src
 
-* Terminal (Multi-Term)
-#+begin_src emacs-lisp
 (use-package multi-term
   :ensure t
   :custom
@@ -204,18 +161,11 @@
     "Mapeo de teclas para modo terminal."
     :type 'alist
     :group 'multi-term))
-#+end_src
 
-* Desarrollo
-** Expand-Region (selección inteligente)
-#+begin_src emacs-lisp
 (use-package expand-region
   :ensure t
   :bind ("C-=" . er/expand-region))
-#+end_src
 
-** Projectile (gestión de proyectos)
-#+begin_src emacs-lisp
 (use-package projectile
   :ensure t
   :bind-keymap ("C-c p" . projectile-command-map)
@@ -224,10 +174,7 @@
   (projectile-project-search-path '("~/Documentos/"))  ; Ajusta esta ruta
   :config
   (projectile-mode +1))
-#+end_src
 
-** Company (autocompletado)
-#+begin_src emacs-lisp
 (use-package company
   :ensure t
   :hook (after-init . global-company-mode)
@@ -235,29 +182,20 @@
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.1)
   (company-global-modes '(not mhtml-mode)))
-#+end_src
 
-** Yasnippet (plantillas de código)
-#+begin_src emacs-lisp
 (use-package yasnippet
   :ensure t
   :config
   (yas-global-mode 1)
   (setq yas-snippet-dirs '("~/.emacs.d/snippets")))
-#+end_src
 
-** Company-C-Headers (autocompletado para C/C++)
-#+begin_src emacs-lisp
 (use-package company-c-headers
   :ensure t
   :after company
   :config
   (add-to-list 'company-backends 'company-c-headers)
   (add-to-list 'company-c-headers-path-system "/usr/include/"))
-#+end_src
 
-** Flycheck (verificación de sintaxis)
-#+begin_src emacs-lisp
 (use-package flycheck
   :ensure t
   :hook (after-init . global-flycheck-mode)
@@ -266,10 +204,7 @@
   (add-hook 'c++-mode-hook
             (lambda () (setq flycheck-clang-include-path
                              (list (expand-file-name "/usr/include/"))))))
-#+end_src
 
-** Helm-Gtags (navegación de código con GTAGS)
-#+begin_src emacs-lisp
 (use-package helm-gtags
   :ensure t
   :hook ((c-mode . helm-gtags-mode)
@@ -283,54 +218,34 @@
               ("C-c <" . helm-gtags-previous-history)
               ("C-c >" . helm-gtags-next-history)
               ("M-," . helm-gtags-pop-stack)))
-#+end_src
 
-** Iedit (edición múltiple)
-#+begin_src emacs-lisp
 (use-package iedit
   :ensure t
   :bind ("C-c ;" . iedit-mode))
-#+end_src
 
-** Highlight-Indent-Guides (guías de indentación)
-#+begin_src emacs-lisp
 (use-package highlight-indent-guides
   :ensure t
   :hook (prog-mode . highlight-indent-guides-mode)
   :custom
   (highlight-indent-guides-method 'bitmap)
   (highlight-indent-guides-responsive 'top))
-#+end_src
 
-* Desarrollo Web
-** Emmet-Mode (abreviaciones HTML/CSS)
-#+begin_src emacs-lisp
 (use-package emmet-mode
   :ensure t
   :hook ((sgml-mode . emmet-mode)
          (css-mode . emmet-mode)
          (web-mode . emmet-mode)))
-#+end_src
 
-** Simple-HTTPD (servidor web local)
-#+begin_src emacs-lisp
 (use-package simple-httpd
   :ensure t)
-#+end_src
 
-* PDF Tools (visualización de PDFs)
-#+begin_src emacs-lisp
 (use-package pdf-tools
   :ensure t
   :magic ("%PDF" . pdf-view-mode)
   :hook (pdf-view-mode . pdf-view-restore-mode)
   :config
   (pdf-tools-install :noquery))
-#+end_src
 
-* Org Mode
-** Configuración general
-#+begin_src emacs-lisp
 ;; Aplicaciones para abrir archivos externos
 (setq org-file-apps
       '((auto-mode . emacs)
@@ -339,10 +254,7 @@
         ("\\.djvu\\'" . "evince \"%s\"")
         ("\\.pdf::\\([0-9]+\\)\\'" . "evince \"%s\" -p %1")
         ("\\.xoj" . "xournal %s")))
-#+end_src
 
-** Org-Babel (ejecución de código en documentos)
-#+begin_src emacs-lisp
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((C . t)
@@ -352,25 +264,16 @@
    (shell . t)
    (emacs-lisp . t)
    (latex . t)))
-#+end_src
 
-** SLIME para Lisp
-#+begin_src emacs-lisp
 (use-package slime
   :ensure t
   :custom
   (inferior-lisp-program "/bin/sbcl"))
-#+end_src
 
-** Org-Bullets (viñetas mejoradas)
-#+begin_src emacs-lisp
 (use-package org-bullets
   :ensure t
   :hook (org-mode . org-bullets-mode))
-#+end_src
 
-** Org TODO Keywords (estados personalizados)
-#+begin_src emacs-lisp
 (setq org-todo-keywords
       '((sequence "TODO(t)" "INPROGRESS(i)" "FEEDBACK(f)" "VERIFY(v)" "|" "DONE(d)" "DELEGATED(D)" "CANCELLED(c)")))
 
@@ -384,10 +287,7 @@
         ("CANCELLED" :background "blue" :foreground "black" :box (:line-width 2 :style released-button))))
 
 (setq org-log-done 'time)
-#+end_src
 
-* Comandos de Inicialización
-#+begin_src emacs-lisp
 ;; Advertencias de compilación
 (setq byte-compile-warnings '(not free-vars))
 
@@ -426,10 +326,7 @@
 
 ;; Modo de línea visual
 (global-visual-line-mode 1)
-#+end_src
 
-* Corrector Ortográfico (Aspell)
-#+begin_src emacs-lisp
 (use-package ispell
   :custom
   (ispell-program-name "aspell")
@@ -438,17 +335,11 @@
   (add-to-list 'ispell-skip-region-alist '(":\\(PROPERTIES\\|LOGBOOK\\):" . ":END:"))
   (add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_SRC" . "#\\+END_SRC"))
   (add-to-list 'ispell-skip-region-alist '("#\\+TITLE:" . "#\\+AUTHOR:" . "#\\+DATE:")))
-#+end_src
 
-* SR-Speedbar (barra lateral de archivos)
-#+begin_src emacs-lisp
 (use-package sr-speedbar
   :ensure t
   :bind ("M-1" . sr-speedbar-toggle))
-#+end_src
 
-* Atomic-Chrome (edición de texto en navegador)
-#+begin_src emacs-lisp
 (use-package atomic-chrome
   :ensure t
   :config
@@ -457,31 +348,17 @@
         '(("github\\.com" . gfm-mode)
           ("redmine" . textile-mode)
           ("overleaf\\.com" . latex-mode))))
-#+end_src
 
-* Configuración Adicional
-** Guardar historial de archivos recientes
-#+begin_src emacs-lisp
 (use-package recentf
   :config
   (recentf-mode 1)
   (setq recentf-max-menu-items 25))
-#+end_src
 
-** Mejorar rendimiento con gc
-#+begin_src emacs-lisp
 ;; Ajustar recolección de basura para mejor rendimiento
 (setq gc-cons-threshold 100000000)  ; 100MB
 (setq read-process-output-max (* 1024 1024))  ; 1MB
-#+end_src
 
-** Codificación UTF-8
-#+begin_src emacs-lisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-#+end_src
 
-* Fin de la configuración
-#+begin_src emacs-lisp
 (message "Configuración cargada exitosamente en %s" (current-time-string))
-#+end_src
